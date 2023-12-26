@@ -5,10 +5,6 @@ import { redirect } from "next/navigation";
 import React from "react";
 
 const Page = async () => {
-  //const {userId}=auth()
-  // if(!userId){
-  //   redirect("/sign-in")
-  // }
   const userId = "clerk123";
   const mongoUser = await getUserById({ userId });
   console.log(mongoUser, "show in terminal");
