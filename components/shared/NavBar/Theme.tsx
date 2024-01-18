@@ -15,7 +15,6 @@ import { themes } from "@/constants";
 
 const Theme = () => {
   const { mode, setMode, handleThemeChange } = useTheme();
-  console.log(mode, "checking in theme.tsx file");
   return (
     <>
       <Menubar className="relative border-none bg-transparent shadow-none">

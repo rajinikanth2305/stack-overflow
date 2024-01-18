@@ -6,12 +6,12 @@ import NoResult from "@/components/shared/NoResult";
 import LocalSearchbar from "@/components/shared/search/LocalSearchbar";
 import { Button } from "@/components/ui/button";
 import { HomePageFilters } from "@/constants/filters";
-import Question from "@/database/question.model";
+import Question, { IQuestion } from "@/database/question.model";
 import { getQuestions } from "@/lib/actions/question.action";
+import { getQuestionsByTagId } from "@/lib/actions/tag.actions";
 import { URLProps } from "@/types";
-import { UserButton, auth } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
-import { useRef, useState } from "react";
 
 // const questions = [
 //   {
@@ -38,51 +38,33 @@ import { useRef, useState } from "react";
 //     createdAt: new Date("2023-04-20T00:00:00+02:00"),
 //   },
 // ];
-export default async function Home({
-  params,
-}: {
-  params?: {
-    q?: string;
-  };
-}) {
-  const query = params?.q || "";
-
-  //const [value, setValue] = useState("");
-
-  const result = await getQuestions({ searchQuery: query });
-
-  const { userId } = auth();
-
+export default async function Home({ params, searchParams }: URLProps) {
+  //const result = await getQuestions({});
+  const result = await getQuestionsByTagId({
+    tagId: params.id,
+    page: 1,
+    searchQuery: searchParams.q,
+  });
   return (
     <>
       <div className="flex w-full flex-col-reverse justify-between gap-4 sm:flex-row sm:items-center">
-        <h1 className="h1-bold text-dark100_light900">All Questions</h1>
-        <Link href="/ask-question" className="flex justify-end max-sm:w-full">
-          <Button className="primary-gradient px-4 py-3 !text-light-900 min-h-[46px]">
-            Ask A Question
-          </Button>
-        </Link>
+        <h1 className="h1-bold text-dark100_light900">{result.tagTitle}</h1>
       </div>
       <div className="mt-11 flex justify-between gap-5 max-sm:flex-col sm:items-center">
         <LocalSearchbar
           route="/"
           iconPosition="left"
           imgSrc="/assets/icons/search.svg"
-          placeholder="Search for questions"
+          placeholder="Search tag questions"
           otherClasses="flex-1"
         />
-        <Filter
-          filters={HomePageFilters}
-          otherClasses="min-h-[56px] sm:min-w-[170px]"
-          containerClasses="hidden max-md:flex"
-        />
       </div>
-      <HomeFilters />
+
       <div className="mt-10 w-full flex flex-col gap-6">
         {/*looping througn questions */}
         {/*eslint-disable-next-line*/}
         {result && result?.questions?.length > 0 ? (
-          result?.questions?.map((question) => (
+          result?.questions?.map((question: IQuestion) => (
             <QuestionCard
               key={question._id}
               _id={question._id}
@@ -93,12 +75,11 @@ export default async function Home({
               views={question.views}
               answers={question.answers}
               createdAt={question.createdAt}
-              clerkId={userId}
             />
           ))
         ) : (
           <NoResult
-            title="There is no question to show"
+            title="There is no tag question to show"
             description="Be the first to break the silence! 🚀 Ask a Question and kickstart the
         discussion. our query could be the next big thing others learn from. Get
         involved! 💡"

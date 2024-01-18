@@ -1,19 +1,28 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { sidebarLinks } from "@/constants";
-import { SignedIn, SignedOut } from "@clerk/nextjs";
+import { SignedIn, SignedOut, useAuth } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
 const NavContent = () => {
   const pathname = usePathname();
+  const { userId } = useAuth();
   return (
     <>
       {sidebarLinks.map((link, index) => {
         const isActive =
           (pathname.includes(link.route) && link.route.length > 1) ||
           pathname === link.route;
+        //TODO:profile/id
+        if (link.route == "/profile") {
+          if (userId) {
+            link.route = `${link.route}/${userId}`;
+          } else {
+            return null;
+          }
+        }
         return (
           <Link
             href={link.route}
